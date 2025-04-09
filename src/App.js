@@ -10,13 +10,13 @@ import {
   setDoc,
 } from "firebase/firestore";
 import AuthScreen from "./AuthScreen";
+import Dashboard from "./Dashboard";
 
 function App() {
   const [user, setUser] = useState(null);
-  const [balance, setBalance] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [balance, setBalance] = useState(0);
 
-  // Отслеживаем авторизацию
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (user) => {
       setLoading(false);
@@ -30,7 +30,6 @@ function App() {
           const data = snap.data();
           setBalance(data.balance || 0);
         } else {
-          // Новый пользователь — создаём документ
           await setDoc(ref, {
             email: user.email,
             createdAt: Date.now(),
@@ -40,40 +39,17 @@ function App() {
         }
       } else {
         setUser(null);
-        setBalance(null);
+        setBalance(0);
       }
     });
 
     return () => unsub();
   }, []);
 
-  const handleLogout = async () => {
-    await signOut(auth);
-  };
-
   if (loading) return <div className="text-white p-8">⏳ Загрузка...</div>;
-
   if (!user) return <AuthScreen />;
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-black to-gray-900 flex flex-col items-center justify-center px-4">
-      <h1 className="text-yellow-400 text-3xl font-bold mb-4 tracking-widest">
-        🎯 Duck Hunt Dashboard
-      </h1>
-      <p className="text-white text-lg mb-2">
-        Добро пожаловать, {user.email}
-      </p>
-      <p className="text-yellow-300 text-2xl font-mono mb-4">
-        💰 Баланс: {balance?.toFixed(2)} DUCK
-      </p>
-      <button
-        onClick={handleLogout}
-        className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-xl"
-      >
-        Выйти
-      </button>
-    </div>
-  );
+  return <Dashboard user={user} balance={balance} />;
 }
 
 export default App;
