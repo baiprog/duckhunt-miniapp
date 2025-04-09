@@ -38,6 +38,7 @@ function App() {
 
   return (
     <div style={{ padding: 20, fontFamily: "sans-serif", fontSize: 14 }}>
+    <h2 style={{ color: 'red' }}>🔥 ТЕСТ ОБНОВЛЕНИЯ — {new Date().toISOString()}</h2>
       <h1>🎯 Duck Hunt</h1>
       <p><b>Статус:</b> {status}</p>
 
