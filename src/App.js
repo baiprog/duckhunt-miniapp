@@ -14,76 +14,81 @@ function App() {
   };
 
   useEffect(() => {
-    let initDataUnsafe = null;
-    let source = "undefined";
+    const tryInitTelegram = () => {
+      const tg = window.Telegram?.WebApp;
 
-    const tg = window.Telegram?.WebApp;
-    addLog("window.Telegram.WebApp", tg);
+      addLog("🔍 Проверка наличия Telegram.WebApp", tg);
 
-    // 1. Пытаемся взять initDataUnsafe напрямую
-    if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-      initDataUnsafe = tg.initDataUnsafe;
-      source = "initDataUnsafe";
-      setStatus("✅ Получены данные от Telegram через WebApp API");
-    }
+      if (tg && tg.initDataUnsafe) {
+        tg.ready();
+        addLog("✅ Telegram WebApp готов", tg);
 
-    // 2. Если нет, пробуем tgWebAppData из URL
-    if (!initDataUnsafe) {
-      const tgWebAppDataRaw = new URLSearchParams(window.location.search).get("tgWebAppData");
-      if (tgWebAppDataRaw) {
-        const parsed = Object.fromEntries(new URLSearchParams(tgWebAppDataRaw));
-        initDataUnsafe = parsed;
-        source = "tgWebAppData";
-        setStatus("✅ Получены данные через tgWebAppData из URL");
-      }
-    }
+        let initDataUnsafe = tg.initDataUnsafe;
+        let source = "initDataUnsafe";
 
-    // 3. Если вообще ничего нет — включаем dev mode
-    if (!initDataUnsafe || !initDataUnsafe.id || !initDataUnsafe.hash) {
-      setStatus("⚠️ Dev-режим: Telegram initData заменён моком");
-      initDataUnsafe = {
-        id: 123456789,
-        username: "demo_user",
-        first_name: "Dev",
-        auth_date: Math.floor(Date.now() / 1000),
-        hash: "MOCK",
-      };
-      source = "mock";
-    }
+        if (!initDataUnsafe.user) {
+          const tgWebAppDataRaw = new URLSearchParams(window.location.search).get("tgWebAppData");
+          if (tgWebAppDataRaw) {
+            const parsed = Object.fromEntries(new URLSearchParams(tgWebAppDataRaw));
+            initDataUnsafe = parsed;
+            source = "tgWebAppData";
+            setStatus("✅ Получены данные через tgWebAppData из URL");
+          }
+        } else {
+          setStatus("✅ Получены данные от Telegram через WebApp API");
+        }
 
-    setInitData({ ...initDataUnsafe, _source: source });
-    addLog("Источник данных", source);
-    addLog("initDataUnsafe", initDataUnsafe);
+        if (!initDataUnsafe || !initDataUnsafe.id || !initDataUnsafe.hash) {
+          setStatus("⚠️ Dev-режим: Telegram initData заменён моком");
+          initDataUnsafe = {
+            id: 123456789,
+            username: "demo_user",
+            first_name: "Dev",
+            auth_date: Math.floor(Date.now() / 1000),
+            hash: "MOCK",
+          };
+          source = "mock";
+        }
 
-    // 4. Не делаем запрос на сервер, если hash = MOCK
-    if (initDataUnsafe.hash === "MOCK") {
-      addLog("Пропущена авторизация", "Dev-режим активен");
-      return;
-    }
+        setInitData({ ...initDataUnsafe, _source: source });
+        addLog("📦 Источник данных", source);
+        addLog("🧠 initDataUnsafe", initDataUnsafe);
 
-    // 5. Авторизация через сервер
-    fetch("http://185.244.173.50:3001/auth/telegram", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(initDataUnsafe),
-    })
-      .then((res) => res.json())
-      .then(async ({ token }) => {
-        if (!token) {
-          setStatus("❌ Сервер не вернул токен");
-          addLog("Ошибка: сервер не вернул токен", null);
+        if (initDataUnsafe.hash === "MOCK") {
+          addLog("🚫 Пропущена авторизация", "Dev-режим активен");
           return;
         }
 
-        await signInWithCustomToken(auth, token);
-        setStatus("✅ Успешно авторизован в Firebase");
-        setUid(auth.currentUser.uid);
-        addLog("🔥 Firebase user", auth.currentUser);
-      })
-      .catch((err) => {
-        setStatus("❌ Ошибка при авторизации");
-        addLog("Ошибка авторизации", err);
-      });
+        // Авторизация через сервер
+        fetch("http://185.244.173.50:3001/auth/telegram", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(initDataUnsafe),
+        })
+          .then((res) => res.json())
+          .then(async ({ token }) => {
+            if (!token) {
+              setStatus("❌ Сервер не вернул токен");
+              addLog("❌ Ошибка: сервер не вернул токен", null);
+              return;
+            }
+
+            await signInWithCustomToken(auth, token);
+            setStatus("✅ Успешно авторизован в Firebase");
+            setUid(auth.currentUser.uid);
+            addLog("🔥 Firebase user", auth.currentUser);
+          })
+          .catch((err) => {
+            setStatus("❌ Ошибка при авторизации");
+            addLog("💥 Ошибка авторизации", err);
+          });
+      } else {
+        addLog("⏳ Telegram.WebApp пока не загружен, повтор через 300мс", {});
+        setTimeout(tryInitTelegram, 300); // повторяем попытку
+      }
+    };
+
+    tryInitTelegram();
   }, []);
 
   return (
