@@ -27,21 +27,6 @@
     <title>React App</title>
   </head>
   <body>
-  <script>
-  window.addEventListener("DOMContentLoaded", () => {
-    const log = (msg, data) => {
-      console.log("[HTML] " + msg, data);
-      const div = document.createElement("pre");
-      div.textContent = `[HTML] ${msg}:\n` + JSON.stringify(data, null, 2);
-      document.body.prepend(div);
-    };
-
-    log("window.Telegram", window.Telegram);
-    log("window.Telegram.WebApp", window.Telegram?.WebApp);
-    log("window.Telegram.WebApp.initData", window.Telegram?.WebApp?.initData);
-    log("window.Telegram.WebApp.initDataUnsafe", window.Telegram?.WebApp?.initDataUnsafe);
-  });
-</script>
     <div id="root"></div>
     <!--
       This HTML file is a template.
