@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head><title>Test Telegram WebApp</title></head>
+  <body>
+    <h1>Telegram WebApp Test</h1>
+    <pre id="output"></pre>
+
+    <script>
+      const out = document.getElementById("output");
+      const log = (label, data) => {
+        out.textContent += `[${label}]\n` + JSON.stringify(data, null, 2) + "\n\n";
+      };
+
+      log("window.Telegram", window.Telegram);
+      log("window.Telegram.WebApp", window.Telegram?.WebApp);
+      log("window.Telegram.WebApp.initDataUnsafe", window.Telegram?.WebApp?.initDataUnsafe);
+    </script>
+  </body>
+</html>
