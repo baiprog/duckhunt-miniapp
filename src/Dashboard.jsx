@@ -1,12 +1,12 @@
 import { useState } from "react";
 import MainScreen from "./tabs/MainScreen";
-import HuntScreen from "./tabs/HuntScreen";
 import WalletScreen from "./tabs/WalletScreen";
+import CrashGame from "./tabs/CrashGame"; // если интегрировал здесь
 
 const TABS = {
   main: <MainScreen />,
-  hunt: <HuntScreen />,
   wallet: <WalletScreen />,
+  crash: <CrashGame />,
 };
 
 export default function Dashboard() {
@@ -20,8 +20,8 @@ export default function Dashboard() {
         <button onClick={() => setTab("main")} className="flex flex-col items-center">
           🏠 <span className="text-xs">Главная</span>
         </button>
-        <button onClick={() => setTab("hunt")} className="flex flex-col items-center">
-          🎯 <span className="text-xs">Охота</span>
+        <button onClick={() => setTab("crash")} className="flex flex-col items-center">
+          🦆 <span className="text-xs">Crash-игра</span>
         </button>
         <button onClick={() => setTab("wallet")} className="flex flex-col items-center">
           💰 <span className="text-xs">Кошелёк</span>
