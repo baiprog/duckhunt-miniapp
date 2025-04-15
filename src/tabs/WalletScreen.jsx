@@ -101,7 +101,9 @@ export default function WalletScreen() {
               key={f}
               onClick={() => setFilter(f)}
               className={`px-3 py-1 rounded border ${
-                filter === f ? "bg-yellow-400 text-black font-bold" : "border-yellow-400 text-yellow-400"
+                filter === f
+                  ? "bg-yellow-400 text-black font-bold"
+                  : "border-yellow-400 text-yellow-400"
               }`}
             >
               {f === "all" && "Все"}
@@ -137,5 +139,6 @@ export default function WalletScreen() {
     </div>
   );
 }
+
 
 
